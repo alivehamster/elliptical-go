@@ -1,4 +1,10 @@
 export interface Message {
   type: string
-  content: string
+  string?: string
+  chat?: Chat
+}
+
+interface Chat {
+  id: string
+  msg: string
 }

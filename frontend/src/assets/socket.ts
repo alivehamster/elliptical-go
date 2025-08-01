@@ -1,4 +1,4 @@
-import { context } from "./store"
+import { context, currentRoom } from "./store"
 import type { Message } from "./types"
 
 let socket: WebSocket
@@ -27,7 +27,18 @@ export function createWebSocket() {
 function handleMessage(data: Message) {
   switch (data.type) {
     case "Clientnum":
-      context.online = parseInt(data.content, 10)
+      if (!data.string) {
+        console.warn("Clientnum message missing string data")
+        return
+      }
+      context.online = parseInt(data.string, 10)
+      break
+    case "Chat":
+      if (!data.chat) {
+        console.warn("Chat message missing chat data")
+        return
+      }
+      currentRoom.messages.push({ id: data.chat.id, msg: data.chat.msg })
       break
     default:
       console.warn("Unknown message type:", data.type)
@@ -37,4 +48,3 @@ function handleMessage(data: Message) {
 export function sendMessage(message: Message) {
   socket.send(JSON.stringify(message))
 }
-

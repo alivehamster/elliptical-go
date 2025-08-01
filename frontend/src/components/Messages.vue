@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import DOMPurify from 'dompurify';
 import { context, currentRoom } from "@/assets/store";
 
@@ -22,7 +22,7 @@ import { context, currentRoom } from "@/assets/store";
     <h3 class="font-bold">Welcome to #{{ currentRoom.title }}</h3>
 
     <ul>
-      <li v-for="(message, index) in context.messages" :key="index">
+      <li v-for="(message, index) in currentRoom.messages" :key="index">
         <div class="flex items-center justify-between m-2">
           <div v-html="DOMPurify.sanitize(message.msg)" :id="message.id"></div>
 

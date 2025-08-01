@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { createWebSocket, sendMessage } from "@/assets/socket.js";
+import { createWebSocket, sendMessage } from "@/assets/socket";
 import { context } from "./assets/store";
 import Navbar from "@/components/Navbar.vue";
 import usernamePicker from "@/components/modals/usernamePicker.vue";
 import Messages from "./components/Messages.vue";
 // import Rooms from "./components/Rooms.vue";
+import type { Message } from "@/assets/types";
 
 createWebSocket();
 const chat = ref('');
@@ -19,9 +20,9 @@ onMounted(() => {
 function sendChat() {
   if (chat.value.trim() === "") return;
 
-  const message = {
-    type: "Chat",
-    content: `${context.username}: ${chat.value}`,
+  const message: Message = {
+    type: "SendChat",
+    string: `${context.username}: ${chat.value}`,
   };
 
   sendMessage(message);

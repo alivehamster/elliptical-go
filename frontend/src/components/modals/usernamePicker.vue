@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { context, usernameModal } from "@/assets/store";
 
 const setUsername = () => {

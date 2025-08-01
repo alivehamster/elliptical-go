@@ -15,9 +15,10 @@ export const context = reactive({
 
 export const usernameModal = reactive({
   open: false,
-  input: "",
+  username: "",
 })
 
 export const currentRoom = reactive({
   title: "test",
+  messages: [] as { id: string; msg: string }[],
 })
