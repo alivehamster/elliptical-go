@@ -1,0 +1,102 @@
+package utils
+
+import (
+	"database/sql"
+	"fmt"
+	"time"
+
+	"github.com/alivehamster/elliptical-go/types"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+// NewDB creates a new database connection pool
+func NewDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	if err := ensuredb(db); err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	return db, nil
+}
+
+func ensuredb(db *sql.DB) error {
+	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS elliptical")
+	if err != nil {
+		return fmt.Errorf("failed to create database: %w", err)
+	}
+
+	_, err = db.Exec("USE elliptical")
+	if err != nil {
+		return fmt.Errorf("failed to select database: %w", err)
+	}
+
+	// Create room table
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS room (
+        roomid INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(255) NOT NULL
+    )`)
+	if err != nil {
+		return fmt.Errorf("failed to create room table: %w", err)
+	}
+
+	// Create messages table with foreign key reference to room
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS messages (
+        msgid INT PRIMARY KEY AUTO_INCREMENT,
+        content TEXT NOT NULL,
+        roomid INT NOT NULL,
+        FOREIGN KEY (roomid) REFERENCES room(roomid) ON DELETE CASCADE
+    )`)
+	if err != nil {
+		return fmt.Errorf("failed to create messages table: %w", err)
+	}
+	return nil
+}
+
+func GetRooms(db *sql.DB) ([]types.Room, error) {
+	rows, err := db.Query("SELECT roomid, title FROM room")
+	if err != nil {
+		return nil, fmt.Errorf("failed to query rooms: %w", err)
+	}
+	defer rows.Close()
+
+	var rooms []types.Room
+	for rows.Next() {
+		var room types.Room
+		if err := rows.Scan(&room.RoomID, &room.Title); err != nil {
+			return nil, fmt.Errorf("failed to scan room: %w", err)
+		}
+		rooms = append(rooms, room)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rooms: %w", err)
+	}
+
+	return rooms, nil
+}
+
+func CreateRoom(db *sql.DB, title string) (int64, error) {
+	result, err := db.Exec("INSERT INTO room (title) VALUES (?)", title)
+	if err != nil {
+		return 0, fmt.Errorf("failed to create room: %w", err)
+	}
+
+	roomID, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last insert ID: %w", err)
+	}
+
+	return roomID, nil
+}

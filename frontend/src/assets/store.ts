@@ -1,16 +1,14 @@
 import { reactive } from "vue"
+import type { Room } from "./types"
 
 export const context = reactive({
   username: "",
   online: 0,
-  roomid: 1,
   status: {
     code: 1,
-    text: "Connecting..."
+    text: "Connecting...",
   },
-  rooms: {
-    length: 0,
-  }
+  rooms: [] as Room[],
 })
 
 export const usernameModal = reactive({
@@ -18,7 +16,12 @@ export const usernameModal = reactive({
   username: "",
 })
 
+export const newRoom = reactive({
+  open: false,
+})
+
 export const currentRoom = reactive({
-  title: "test",
+  title: "",
+  roomid: null as string | null,
   messages: [] as { id: string; msg: string }[],
 })

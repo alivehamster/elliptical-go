@@ -33,6 +33,19 @@ function handleMessage(data: Message) {
       }
       context.online = parseInt(data.string, 10)
       break
+    case "Rooms":
+      if (!data.rooms) {
+        console.warn("Rooms message missing rooms data")
+        return
+      }
+      context.rooms = data.rooms
+      break
+    case "NewRoom":
+      if (!data.room) {
+        console.warn("NewRoom message missing room data")
+        return
+      }
+      context.rooms.push(data.room)
     case "Chat":
       if (!data.chat) {
         console.warn("Chat message missing chat data")

@@ -3,12 +3,15 @@ module github.com/alivehamster/elliptical-go
 go 1.24.5
 
 require (
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/gofiber/contrib/websocket v1.3.4
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.8 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect

@@ -12,7 +12,7 @@ import (
 
 // eventually save roomid instead of bool
 var (
-	clients = make(map[*websocket.Conn]bool)
+	clients = make(map[*websocket.Conn]string)
 	mu      sync.RWMutex
 )
 
@@ -23,7 +23,7 @@ func AddClient(conn *websocket.Conn) {
 		BroadcastJSON(types.Message{Type: "Clientnum", String: &clientCount})
 	}()
 	defer mu.Unlock()
-	clients[conn] = true
+	clients[conn] = "home"
 	log.Printf("Client connected. Total clients: %d", len(clients))
 }
 

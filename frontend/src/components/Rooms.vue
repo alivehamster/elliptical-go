@@ -1,4 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import { context, newRoom } from '@/assets/store';
+
+function joinRoom(room: { title: string; roomid: string }) {
+}
 
 </script>
 
@@ -6,30 +10,15 @@
   <div class="w-64 bg-gray-800 rounded-lg">
     <div class="p-4 overflow-y-auto overflow-x-hidden"
       :class="context.rooms.length === 0 ? '' : 'h-[calc(100%-6.5rem)]'">
-      <details open v-if="context.privateRooms.length !== 0">
-        <summary class="font-bold cursor-pointer">
-          Private Rooms
-        </summary>
 
-        <ul class="h-full scrollbar-transparent">
-          <li v-for="(room, index) in context.privateRooms" :key="index" class="my-2 rounded-lg">
-            <button @click="joinRoom(room)" class="w-full px-4 py-2 rounded-lg"
-              :class="room.highlight ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-500 text-white hover:bg-blue-600'">
-              {{ room.title }}
-            </button>
-          </li>
-        </ul>
-      </details>
-
-      <details :open="context.publicRooms.length !== 0">
+      <details :open="context.rooms.length !== 0">
         <summary class="font-bold cursor-pointer">
           Public Rooms
         </summary>
 
-        <ul class="h-full scrollbar-transparent" v-if="context.publicRooms.length !== 0">
-          <li v-for="(room, index) in context.publicRooms" :key="index" class="my-2 rounded-lg">
-            <button @click="joinRoom(room)" class="w-full px-4 py-2 rounded-lg"
-              :class="room.highlight ? 'bg-yellow-400 text-black hover:bg-yellow-500' : 'bg-blue-500 text-white hover:bg-blue-600'">
+        <ul class="h-full scrollbar-transparent" v-if="context.rooms.length !== 0">
+          <li v-for="(room, index) in context.rooms" :key="index" class="my-2 rounded-lg">
+            <button @click="joinRoom(room)" class="w-full px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer">
               {{ room.title }}
             </button>
           </li>
@@ -42,13 +31,8 @@
     </p>
 
     <div class="absolute bottom-0 left-0 right-0 p-2 w-64 bg-gray-800 rounded-lg">
-      <button @click="joinRoomModal.open = true"
-        class="w-full px-5 py-2.5 mb-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg text-sm font-bold">
-        Join Room
-      </button>
-
       <button @click="newRoom.open = true"
-        class="w-full px-5 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg text-sm font-bold">
+        class="w-full px-5 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg text-sm font-bold hover:cursor-pointer">
         Create Room
       </button>
     </div>
