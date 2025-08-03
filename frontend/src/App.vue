@@ -20,10 +20,17 @@ onMounted(() => {
 
 function sendChat() {
   if (chat.value.trim() === "") return;
+  if (!currentRoom.roomid) {
+    console.warn("No room selected to send chat.");
+    return;
+  }
 
   const message: Message = {
     type: "SendChat",
-    string: `${context.username}: ${chat.value}`,
+    chat: {
+      id: currentRoom.roomid,
+      msg: `${context.username}: ${chat.value}`,
+    },
   };
 
   sendMessage(message);

@@ -53,6 +53,12 @@ function handleMessage(data: Message) {
       }
       currentRoom.messages.push({ id: data.chat.id, msg: data.chat.msg })
       break
+    case "JoinedRoom":
+      if (data.string) {
+        currentRoom.roomid = data.string
+        currentRoom.messages = data.chats || []
+      }
+      break
     default:
       console.warn("Unknown message type:", data.type)
   }

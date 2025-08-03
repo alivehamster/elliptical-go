@@ -100,3 +100,40 @@ func CreateRoom(db *sql.DB, title string) (int64, error) {
 
 	return roomID, nil
 }
+
+func GetChats(db *sql.DB, roomID string) ([]types.Chat, error) {
+	rows, err := db.Query("SELECT msgid, content FROM messages WHERE roomid = ?", roomID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query chats: %w", err)
+	}
+	defer rows.Close()
+
+	var chats []types.Chat
+	for rows.Next() {
+		var chat types.Chat
+		if err := rows.Scan(&chat.ID, &chat.Msg); err != nil {
+			return nil, fmt.Errorf("failed to scan chat: %w", err)
+		}
+		chats = append(chats, chat)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over chats: %w", err)
+	}
+
+	return chats, nil
+}
+
+func StoreChat(db *sql.DB, roomID string, msg string) (int64, error) {
+	result, err := db.Exec("INSERT INTO messages (content, roomid) VALUES (?, ?)", msg, roomID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to store chat: %w", err)
+	}
+
+	msgID, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last insert ID: %w", err)
+	}
+
+	return msgID, nil
+}

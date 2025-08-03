@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { context, newRoom } from '@/assets/store';
+import { context, newRoom, currentRoom } from '@/assets/store';
+import { sendMessage } from '@/assets/socket';
 
 function joinRoom(room: { title: string; roomid: string }) {
+  currentRoom.title = room.title;
+  sendMessage({ type: 'JoinRoom', string: room.roomid });
 }
 
 </script>
@@ -18,7 +21,8 @@ function joinRoom(room: { title: string; roomid: string }) {
 
         <ul class="h-full scrollbar-transparent" v-if="context.rooms.length !== 0">
           <li v-for="(room, index) in context.rooms" :key="index" class="my-2 rounded-lg">
-            <button @click="joinRoom(room)" class="w-full px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer">
+            <button @click="joinRoom(room)"
+              class="w-full px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer">
               {{ room.title }}
             </button>
           </li>

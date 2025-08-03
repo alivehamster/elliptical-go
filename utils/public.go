@@ -38,6 +38,16 @@ func RemoveClient(conn *websocket.Conn) {
 	log.Printf("Client disconnected. Total clients: %d", len(clients))
 }
 
+func SetClientRoom(conn *websocket.Conn, roomID string) {
+	mu.Lock()
+	defer mu.Unlock()
+	if _, exists := clients[conn]; exists {
+		clients[conn] = roomID
+	} else {
+		log.Printf("Client %s not found", conn.RemoteAddr())
+	}
+}
+
 func BroadcastJSON(msg types.Message) {
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
@@ -47,4 +57,17 @@ func BroadcastJSON(msg types.Message) {
 	log.Printf("Broadcasting message: %s", jsonData)
 
 	broadcast(websocket.TextMessage, jsonData)
+}
+
+func SendRoomMessage(chat types.Chat, roomID string) {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	for conn := range clients {
+		if clients[conn] == roomID {
+			if err := conn.WriteJSON(types.Message{Type: "Chat", Chat: &chat}); err != nil {
+				log.Printf("Error sending message to client: %v", err)
+			}
+		}
+	}
 }

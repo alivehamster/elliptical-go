@@ -11,7 +11,6 @@ import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/google/uuid"
 
 	"github.com/alivehamster/elliptical-go/types"
 	"github.com/alivehamster/elliptical-go/utils"
@@ -65,10 +64,16 @@ func main() {
 			}
 			switch message.Type {
 			case "SendChat":
-				if message.String != nil {
-					utils.BroadcastJSON(types.Message{Type: "Chat", Chat: &types.Chat{ID: uuid.New().String(), Msg: *message.String}})
+				if message.Chat != nil {
+					msgid, err := utils.StoreChat(db, message.Chat.ID, message.Chat.Msg)
+					if err != nil {
+						log.Printf("Error storing chat message: %v", err)
+					} else {
+						utils.SendRoomMessage(types.Chat{ID: strconv.FormatInt(msgid, 10), Msg: message.Chat.Msg}, message.Chat.ID)
+					}
+
 				} else {
-					log.Printf("Chat message missing string field")
+					log.Printf("Chat message missing chat field")
 				}
 			case "CreateRoom":
 				if message.String != nil {
@@ -81,6 +86,18 @@ func main() {
 					}
 				} else {
 					log.Printf("CreateRoom message missing string field")
+				}
+			case "JoinRoom":
+				if message.String != nil {
+					roomID := *message.String
+					if chats, err := utils.GetChats(db, roomID); err == nil {
+						utils.SetClientRoom(c, roomID)
+						c.WriteJSON(types.Message{Type: "JoinedRoom", Chats: &chats, String: &roomID})
+					} else {
+						log.Printf("Error joining room: %v", err)
+					}
+				} else {
+					log.Printf("JoinRoom message missing string field")
 				}
 			default:
 				log.Printf("Unknown message type: %s", message.Type)

@@ -2,6 +2,7 @@ export interface Message {
   type: string
   string?: string
   chat?: Chat
+  chats?: Chat[]
   room?: Room
   rooms?: Room[]
 }
