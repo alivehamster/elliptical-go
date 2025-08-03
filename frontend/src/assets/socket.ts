@@ -2,9 +2,22 @@ import { context, currentRoom, reset } from "./store"
 import type { Message } from "./types"
 
 let socket: WebSocket
+let wsUrl: string
+
+if (import.meta.env.DEV) {
+  wsUrl = `ws://localhost:3000/ws`
+} else {
+  wsUrl =
+    (location.protocol === "https:" ? "wss" : "ws") +
+    "://" +
+    location.host +
+    "/ws"
+}
+
+console.log(wsUrl)
 
 export function createWebSocket() {
-  socket = new WebSocket("ws://localhost:3000/ws")
+  socket = new WebSocket(wsUrl)
   socket.addEventListener("open", (event) => {
     console.log("Connected to WebSocket server")
     context.status.code = 0
@@ -21,7 +34,7 @@ export function createWebSocket() {
     console.log("Disconnected from WebSocket server")
     context.status.code = 2
     context.status.text = "Disconnected"
-    reset();
+    reset()
   })
 }
 

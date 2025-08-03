@@ -3,15 +3,20 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alivehamster/elliptical-go/types"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// NewDB creates a new database connection pool
 func NewDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn)
+	if err := ensureDatabase(dsn); err != nil {
+		return nil, fmt.Errorf("failed to ensure database exists: %w", err)
+	}
+
+	dbDSN := addDatabaseToDSN(dsn, "elliptical")
+	db, err := sql.Open("mysql", dbDSN)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
@@ -24,26 +29,51 @@ func NewDB(dsn string) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	if err := ensuredb(db); err != nil {
-		return nil, fmt.Errorf("%w", err)
+	if err := ensureTables(db); err != nil {
+		return nil, fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	return db, nil
 }
 
-func ensuredb(db *sql.DB) error {
-	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS elliptical")
+func ensureDatabase(dsn string) error {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return fmt.Errorf("failed to open connection: %w", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS elliptical")
 	if err != nil {
 		return fmt.Errorf("failed to create database: %w", err)
 	}
 
-	_, err = db.Exec("USE elliptical")
-	if err != nil {
-		return fmt.Errorf("failed to select database: %w", err)
-	}
+	return nil
+}
 
-	// Create room table
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS room (
+func addDatabaseToDSN(dsn, database string) string {
+	if strings.Contains(dsn, "?") {
+		parts := strings.Split(dsn, "?")
+		if strings.HasSuffix(parts[0], "/") {
+			return parts[0] + database + "?" + parts[1]
+		} else {
+			return parts[0] + "/" + database + "?" + parts[1]
+		}
+	} else {
+		if strings.HasSuffix(dsn, "/") {
+			return dsn + database
+		} else {
+			return dsn + "/" + database
+		}
+	}
+}
+
+func ensureTables(db *sql.DB) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS room (
         roomid INT PRIMARY KEY AUTO_INCREMENT,
         title VARCHAR(255) NOT NULL
     )`)
@@ -51,7 +81,6 @@ func ensuredb(db *sql.DB) error {
 		return fmt.Errorf("failed to create room table: %w", err)
 	}
 
-	// Create messages table with foreign key reference to room
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS messages (
         msgid INT PRIMARY KEY AUTO_INCREMENT,
         content TEXT NOT NULL,
