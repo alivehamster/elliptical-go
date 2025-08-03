@@ -1,4 +1,4 @@
-import { context, currentRoom } from "./store"
+import { context, currentRoom, reset } from "./store"
 import type { Message } from "./types"
 
 let socket: WebSocket
@@ -21,6 +21,7 @@ export function createWebSocket() {
     console.log("Disconnected from WebSocket server")
     context.status.code = 2
     context.status.text = "Disconnected"
+    reset();
   })
 }
 
@@ -46,6 +47,7 @@ function handleMessage(data: Message) {
         return
       }
       context.rooms.push(data.room)
+      break
     case "Chat":
       if (!data.chat) {
         console.warn("Chat message missing chat data")

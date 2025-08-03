@@ -25,3 +25,11 @@ export const currentRoom = reactive({
   roomid: null as string | null,
   messages: [] as { id: string; msg: string }[],
 })
+
+export function reset() {
+  context.online = 0
+  context.rooms = []
+  currentRoom.title = ""
+  currentRoom.roomid = null
+  currentRoom.messages = []
+}

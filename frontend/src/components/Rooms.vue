@@ -35,7 +35,7 @@ function joinRoom(room: { title: string; roomid: string }) {
     </p>
 
     <div class="absolute bottom-0 left-0 right-0 p-2 w-64 bg-gray-800 rounded-lg">
-      <button @click="newRoom.open = true"
+      <button @click="() => { if (context.status.code === 0) newRoom.open = true }"
         class="w-full px-5 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg text-sm font-bold hover:cursor-pointer">
         Create Room
       </button>

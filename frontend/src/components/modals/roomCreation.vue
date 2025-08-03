@@ -32,11 +32,6 @@ function createRoom() {
         <input placeholder="Room name" type="text" maxlength="25"
           class="w-80 py-2.5 px-5 m-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-600 outline-none text-white"
           v-model="roomTitle" />
-        <div class="flex justify-center items-center mt-2 mb-1">
-          <label>Private</label>
-         
-        </div>
-
       </div>
       <div class="flex justify-center">
         <button data-modal-hide="default-modal" type="button"

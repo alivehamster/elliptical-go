@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { context, usernameModal } from "@/assets/store";
+import { createWebSocket } from "@/assets/socket";
+
+function reconnect() {
+  context.status.code = 1;
+  context.status.text = "Connecting...";
+
+  setTimeout(() => {
+    createWebSocket();
+  }, 500);
+}
 </script>
 
 <template>
@@ -13,10 +23,14 @@ import { context, usernameModal } from "@/assets/store";
       }">
         {{ context.status.text }}
       </span>
+      <span v-if="context.status.code === 2"
+        class="rounded-lg text-xs ml-2 hover:cursor-pointer material-symbols-outlined" @click="reconnect">
+        sync
+      </span>
     </h1>
 
     <div class="flex items-center">
-      
+
       <button @click="usernameModal.open = true"
         class="w-full px-5 py-2.5 mr-4 bg-blue-500 hover:bg-blue-600 hover:cursor-pointer rounded-lg text-sm font-bold">
         {{ context.username || 'Set Username' }}
