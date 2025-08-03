@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "preview": "vite preview",
     "format": "prettier --write .",
     "type-check": "vue-tsc --build"

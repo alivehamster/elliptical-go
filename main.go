@@ -10,7 +10,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/alivehamster/elliptical-go/types"
 	"github.com/alivehamster/elliptical-go/utils"
@@ -36,9 +35,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(logger.New())
-
-	app.Static("/", "./frontend/dist")
+	app.Static("/", "./dist")
 
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
 		utils.AddClient(c)

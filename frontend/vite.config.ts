@@ -8,7 +8,7 @@ import { fileURLToPath, URL } from "node:url"
 export default defineConfig({
   plugins: [vue(), vueDevTools(), tailwindcss()],
   server: {
-    hmr: false,
+    hmr: true,
   },
   resolve: {
     alias: {
@@ -16,8 +16,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
-    sourcemap: true,
-    manifest: true,
+    outDir: "../output/dist",
   },
 })
